@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import Tour, { ITour } from '../models/tourModel';
 import APIFeature from '../utils/APIFeatures';
 import catchAsync from '../utils/catchAsync';
+import AppError from '../utils/AppError';
 
 /*
 // this function for a params middleware so we have addition val
@@ -74,6 +75,11 @@ const getTour = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     // Tour.findOne({_id:req.params.id})
     const tour = await Tour.findById(req.params.id);
+    // here if the id is valid but not exist will return null so we want to handle it as 404
+    if (!tour) {
+      // return in order not to complete execute the func
+      return next(new AppError('No tour found with that ID', 404));
+    }
     res.status(200).json({
       status: 'success',
       data: {
@@ -90,7 +96,7 @@ const createTour = catchAsync(
     // newTour.save().then........
     // using better way
     // will return newly created document
-    // if the body conatins other fields that not in the schema will be ignored this field
+    // if the body contains other fields that not in the schema will be ignored this field
     const newTour = await Tour.create(req.body);
     res.status(201).json({
       status: 'success',
@@ -110,6 +116,10 @@ const updateTour = catchAsync(
       new: true,
       runValidators: true,
     });
+    if (!tour) {
+      // return in order not to complete execute the func
+      return next(new AppError('No tour found with that ID', 404));
+    }
     res.status(200).json({
       status: 'success',
       data: {
@@ -121,7 +131,11 @@ const updateTour = catchAsync(
 
 const deleteTour = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    await Tour.findByIdAndDelete(req.params.id);
+    const tour = await Tour.findByIdAndDelete(req.params.id);
+    if (!tour) {
+      // return in order not to complete execute the func
+      return next(new AppError('No tour found with that ID', 404));
+    }
     res.status(204).json({
       status: 'success',
       data: null,
