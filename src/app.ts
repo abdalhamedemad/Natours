@@ -3,14 +3,11 @@ import morgan from 'morgan';
 import path from 'path';
 import tourRouter from './routes/tourRoutes';
 import userRouter from './routes/userRoutes';
+import AppError from './utils/AppError';
+import globalErrorController from './controllers/errorControllers';
 
 interface CustomRequest extends Request {
   requestTime?: string;
-}
-
-export interface AppError extends Error {
-  statusCode?: number;
-  status?: 'fail' | 'error';
 }
 
 const app = express();
@@ -68,11 +65,10 @@ app.use((req, res, next) => {
   //   message: `Can't find ${req.originalUrl} on this server!`,
   // });
   // next();
-  const err = new Error(
+  const err = new AppError(
     `Can't find ${req.originalUrl} on this server!`,
-  ) as AppError;
-  err.status = 'fail';
-  err.statusCode = 404;
+    404,
+  );
   //  in Express if we passed an arguments to next function automatically will know that is an err
   // so will go and executed the error middleware
   next(err);
@@ -80,13 +76,6 @@ app.use((req, res, next) => {
 
 // Global error handling here will handles the operational errors so only here will send the erors and in the other palce we just throws it
 // this middleware is an error middleware has 4 params , when a errors occurs express will call this middleware
-app.use((err: AppError, req: Request, res: Response, next: NextFunction) => {
-  err.statusCode = err.statusCode || 500;
-  err.status = err.status || 'error';
-  res.status(err.statusCode).json({
-    status: err.status,
-    message: err.message,
-  });
-});
+app.use(globalErrorController);
 // 4) START SERVER
 export default app;
