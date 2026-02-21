@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import Tour, { ITour } from '../models/tourModel';
 import APIFeature from '../utils/APIFeatures';
+import catchAsync from '../utils/catchAsync';
 
 /*
 // this function for a params middleware so we have addition val
@@ -35,13 +36,11 @@ const aliasTopTours = (req: Request, res: Response, next: NextFunction) => {
 };
 
 //  get all tours
-const getAllTours = async (req: Request, res: Response) => {
-  try {
+const getAllTours = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
     // get all
     // const tours = await Tour.find();
-
     // 1) Build Query
-
     const features = new APIFeature<ITour>(
       Tour.find(),
       req.query as Record<string, string | undefined>,
@@ -50,7 +49,6 @@ const getAllTours = async (req: Request, res: Response) => {
       .sort()
       .limit()
       .pagination();
-
     // const query = await Tour.find()
     //   .where('duration')
     //   .equals(5)
@@ -68,17 +66,12 @@ const getAllTours = async (req: Request, res: Response) => {
         tours,
       },
     });
-  } catch (err) {
-    res.status(404).json({
-      status: 'fail',
-      message: 'Something went wrong',
-    });
-  }
-};
+  },
+);
 
 // get specific one
-const getTour = async (req: Request, res: Response) => {
-  try {
+const getTour = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
     // Tour.findOne({_id:req.params.id})
     const tour = await Tour.findById(req.params.id);
     res.status(200).json({
@@ -87,16 +80,11 @@ const getTour = async (req: Request, res: Response) => {
         tour,
       },
     });
-  } catch (err) {
-    res.status(404).json({
-      status: 'fail',
-      message: 'Not Found 404',
-    });
-  }
-};
+  },
+);
 
-const createTour = async (req: Request, res: Response) => {
-  try {
+const createTour = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
     // creating new tour using model Tour
     // const newTour = new Tour({})
     // newTour.save().then........
@@ -110,16 +98,11 @@ const createTour = async (req: Request, res: Response) => {
         tour: newTour,
       },
     });
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: 'Invalid data sent!',
-    });
-  }
-};
+  },
+);
 
-const updateTour = async (req: Request, res: Response) => {
-  try {
+const updateTour = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
     //  here we add the option new : true in order to return the updated
     // version of the tour
     // run validator is true in order to  run the validator against the schema
@@ -133,31 +116,21 @@ const updateTour = async (req: Request, res: Response) => {
         tour,
       },
     });
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: 'Invalid data sent!',
-    });
-  }
-};
+  },
+);
 
-const deleteTour = async (req: Request, res: Response) => {
-  try {
+const deleteTour = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
     await Tour.findByIdAndDelete(req.params.id);
     res.status(204).json({
       status: 'success',
       data: null,
     });
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err,
-    });
-  }
-};
+  },
+);
 
-const getTourStats = async (req: Request, res: Response) => {
-  try {
+const getTourStats = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
     // here is the Aggregation pipeline it takes array of statges
     const stats = await Tour.aggregate([
       // first stage we can use match in order to filter documents like where in SQl query
@@ -198,16 +171,12 @@ const getTourStats = async (req: Request, res: Response) => {
       status: 'success',
       data: stats,
     });
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err,
-    });
-  }
-};
-const getMonthlyPlan = async (req: Request, res: Response) => {
-  const year = Number(req.params.year);
-  try {
+  },
+);
+const getMonthlyPlan = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const year = Number(req.params.year);
+
     const plan = await Tour.aggregate([
       {
         /* this stage used to unwinding , startdates is an array 
@@ -260,13 +229,8 @@ const getMonthlyPlan = async (req: Request, res: Response) => {
       status: 'success',
       data: plan,
     });
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err,
-    });
-  }
-};
+  },
+);
 
 export default {
   getAllTours,
