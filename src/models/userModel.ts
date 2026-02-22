@@ -8,6 +8,7 @@ export interface IUser extends Document {
   photo?: string;
   password: string;
   passwordConfirm: string | undefined;
+  passwordChangedAt: Date;
 }
 const userSchema = new mongoose.Schema<IUser>({
   name: {
@@ -34,6 +35,8 @@ const userSchema = new mongoose.Schema<IUser>({
     type: String,
     required: [true, 'A user must have a password'],
     minlength: 8,
+    // means never shows when makes a query
+    select: false,
     // validate: [validator.isStrongPassword, 'Enter a strong password'],
   },
   // we only add this field in order of a validation in DB
@@ -48,8 +51,10 @@ const userSchema = new mongoose.Schema<IUser>({
       message: 'Passwords are not the same!',
     },
   },
+  passwordChangedAt: Date,
 });
 
+// we add hashing here to separate business logic to be here
 userSchema.pre('save', async function (this: IUser, next) {
   // we want to encrypt password only if the user modify it
   if (!this.isModified('password')) return next();
@@ -61,6 +66,27 @@ userSchema.pre('save', async function (this: IUser, next) {
   next();
 });
 
+//  this instance methods will be available in the user document we add it here because it's related to the data
+userSchema.methods.checkCorrectPassword = async function (
+  candidatePassword,
+  userPassword,
+) {
+  const res = await bcrypt.compare(candidatePassword, userPassword);
+  return res;
+};
+
+userSchema.methods.changedPasswordAfter = function (
+  this: IUser,
+  JWTTimeStamp: number,
+) {
+  if (this.passwordChangedAt) {
+    // convert date into time stamp as in seconds with getTime and divided by 1000 to convert into seconds
+    // ,10 for the parsing base 10
+    const changedTimeStamp = this.passwordChangedAt.getTime() / 1000;
+    return JWTTimeStamp < changedTimeStamp;
+  }
+  return false;
+};
 // here we use the schema to build a model user so we can now use user to make a crud operation very easy
 // here the convention that model name must start with a Capital letter
 const User = mongoose.model('User', userSchema);

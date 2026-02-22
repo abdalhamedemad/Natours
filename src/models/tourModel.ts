@@ -1,6 +1,5 @@
-import mongoose, { Aggregate, Query } from 'mongoose';
+import mongoose, { Aggregate, Query, Document } from 'mongoose';
 import slugify from 'slugify';
-import { Document } from 'mongoose';
 // import validator from 'validator';
 export interface TourQuery<T> extends Query<T, ITour> {
   start?: number;

@@ -220,3 +220,13 @@ router
 - in node js we can debug using a node debuger from google called ndb as dev dependencies
 
 ## For password encryption will use bcryptjs package
+
+## for JWt will use pkg jsonwebtoken
+
+- JWT_SECRET must be at least 32 chars
+
+## Convert from callback to promises
+
+- use promisify from {promisify} from 'util'
+- here pass to promisify the function then call it
+- await promisify(jwt.verify)(token , process.env.JWT_SECRET)

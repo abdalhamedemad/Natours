@@ -25,6 +25,7 @@
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
     "mongoose": "^5.13.23",
     "morgan": "^1.10.1",
     "slugify": "^1.6.6",
@@ -32,6 +33,7 @@
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/morgan": "^1.9.10",
     "@types/node": "^25.2.3",
     "@types/validator": "^13.15.10",
@@ -51,5 +53,9 @@
     "prettier": "^3.8.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
+  },
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
   }
 }

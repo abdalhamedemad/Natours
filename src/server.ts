@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+
 dotenv.config({ path: './config.env' });
 
 // for errors that are not handled by express i.e for code that is outside express middlewares and functions
