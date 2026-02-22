@@ -16,7 +16,7 @@
   "main": "app.ts",
   "scripts": {
     "start:dev": "nodemon ./src/server.ts",
-    "start:prod": "NODE_ENV=production nodemon ./src/server.ts",
+    "start:prod": "set NODE_ENV=production && nodemon ./src/server.ts",
     "prettier-fix": "npx prettier --write .",
     "debug": "ndb ./src/server.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
