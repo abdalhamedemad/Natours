@@ -218,3 +218,5 @@ router
 ## Debugger
 
 - in node js we can debug using a node debuger from google called ndb as dev dependencies
+
+## For password encryption will use bcryptjs package
