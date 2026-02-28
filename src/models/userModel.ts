@@ -1,6 +1,7 @@
 import mongoose, { Document } from 'mongoose';
 import validator from 'validator';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 
 export interface IUser extends Document {
   name: string;
@@ -9,6 +10,9 @@ export interface IUser extends Document {
   password: string;
   passwordConfirm: string | undefined;
   passwordChangedAt: Date;
+  role: string;
+  passwordResetToken: string;
+  passwordResetExpires: Date;
 }
 const userSchema = new mongoose.Schema<IUser>({
   name: {
@@ -31,6 +35,11 @@ const userSchema = new mongoose.Schema<IUser>({
     // required: [true, 'A user must have a photo'],
     validate: [validator.isURL, 'Enter a valid url'],
   },
+  role: {
+    type: String,
+    enum: ['user', 'guide', 'lead-guide', 'admin'],
+    default: 'user',
+  },
   password: {
     type: String,
     required: [true, 'A user must have a password'],
@@ -52,6 +61,8 @@ const userSchema = new mongoose.Schema<IUser>({
     },
   },
   passwordChangedAt: Date,
+  passwordResetToken: String,
+  passwordResetExpires: Date,
 });
 
 // we add hashing here to separate business logic to be here
@@ -63,6 +74,16 @@ userSchema.pre('save', async function (this: IUser, next) {
   this.password = await bcrypt.hash(this.password, 12);
   // Delete the password confirm field
   this.passwordConfirm = undefined;
+  next();
+});
+
+// change the password changed at after only resiting the password
+userSchema.pre('save', async function (this: IUser, next) {
+  // check if not modified or this document is new return
+  if (!this.isModified('password') || this.isNew) return next();
+
+  // to ensure that alway the token always created after this date bec/ we check in the above for that
+  this.passwordChangedAt = new Date(Date.now() - 1000);
   next();
 });
 
@@ -86,6 +107,20 @@ userSchema.methods.changedPasswordAfter = function (
     return JWTTimeStamp < changedTimeStamp;
   }
   return false;
+};
+
+userSchema.methods.createPasswordResetToken = function (this: IUser) {
+  // will generate just small random token using crypto
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  // this token will send to the user's email to reset it's password
+  // this behave as a user password so we could't save it as a plain text to the DB
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+  // will expires after ten minutes
+  this.passwordResetExpires = new Date(Date.now() + 10 * 60 * 60 * 1000);
+  return resetToken;
 };
 // here we use the schema to build a model user so we can now use user to make a crud operation very easy
 // here the convention that model name must start with a Capital letter

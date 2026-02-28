@@ -230,3 +230,5 @@ router
 - use promisify from {promisify} from 'util'
 - here pass to promisify the function then call it
 - await promisify(jwt.verify)(token , process.env.JWT_SECRET)
+
+## we will use nodemailer library to send email to reset the password
