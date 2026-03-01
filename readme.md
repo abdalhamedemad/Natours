@@ -232,3 +232,9 @@ router
 - await promisify(jwt.verify)(token , process.env.JWT_SECRET)
 
 ## we will use nodemailer library to send email to reset the password
+
+## JWT with Cookies
+
+- send the jwt token with cookies so the browser will save it in secure way
+- instead of saving it to the localstorage which is less secure any one can use it (stole it)
+- a Cookie is a piece of text the server sends to the browser and the broswer sends it back with each request

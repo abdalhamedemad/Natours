@@ -1,4 +1,4 @@
-import mongoose, { Document } from 'mongoose';
+import mongoose, { Document, Query } from 'mongoose';
 import validator from 'validator';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
@@ -63,6 +63,12 @@ const userSchema = new mongoose.Schema<IUser>({
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
+  // for deleted account we just set to in active not deleted
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
 });
 
 // we add hashing here to separate business logic to be here
@@ -84,6 +90,14 @@ userSchema.pre('save', async function (this: IUser, next) {
 
   // to ensure that alway the token always created after this date bec/ we check in the above for that
   this.passwordChangedAt = new Date(Date.now() - 1000);
+  next();
+});
+
+// regex to select all start wil find findbyid and findandupdate...
+// here before any query we just needs to not select the inactive users
+userSchema.pre(/^find/, function (this: Query<any, IUser>, next) {
+  // this points to the current query we can chain more filteration
+  this.find({ active: { $ne: false } });
   next();
 });
 

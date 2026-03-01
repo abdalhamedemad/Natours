@@ -14,6 +14,13 @@ const signToken = (id: string) => {
     expiresIn: '90d',
   });
 };
+const createSendToken = (user: IUser, statusCode: number, res: Response) => {
+  const token = signToken(user._id.toString());
+  res.status(statusCode).json({
+    status: 'success',
+    token,
+  });
+};
 const signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
     name: req.body.name,
@@ -23,14 +30,7 @@ const signup = catchAsync(async (req, res, next) => {
     role: req.body.role,
   });
   // id here is the payload "data" needed by the JWT, and JWT header will create automatically
-  const token = signToken(newUser._id.toString());
-  res.status(201).json({
-    status: 'success',
-    token,
-    data: {
-      user: newUser,
-    },
-  });
+  createSendToken(newUser, 201, res);
 });
 
 const login = catchAsync(async (req, res, next) => {
@@ -51,11 +51,7 @@ const login = catchAsync(async (req, res, next) => {
   }
 
   // 3) if every things ok, send token to client
-  const token = signToken(user._id.toString());
-  res.status(201).json({
-    status: 'success',
-    token,
-  });
+  createSendToken(user, 200, res);
 });
 
 const protect = catchAsync(
@@ -181,22 +177,33 @@ const resetPassword = catchAsync(
     await user.save();
 
     // 4) log the user in , send JWT
-    const token = signToken(user._id.toString());
-    res.status(201).json({
-      status: 'success',
-      token,
-    });
+    createSendToken(user, 200, res);
   },
 );
 
 const updatePassword = catchAsync(
   async (req: AuthRequest, res: Response, next: NextFunction) => {
     // 1) get the user from the collection
-    const user = await User.findById(req?.user?.id);
-    u;
+    // we have to explicitly select the password
+    const user = await User.findById(req?.user?.id).select('+password');
+
     // 2) Check if the posted current password is correct
+    const correct = await user.correctPassword(
+      req.body.passwordCurrent,
+      user.password,
+    );
+    if (!correct) {
+      return next(new AppError('your current password not correct', 401));
+    }
     // 3) if so, update the password
+    user.password = req.body.password;
+    user.passwordConfirm = req.body.passwordConfirm;
+    await user.save();
+    //  we do not use findByIDandUpdate because this will not runs the validator
+    // if check if the passwordConfirm === this.password bec in update mongoose doe not
+    // keep in memory this.password
     // 4) Log user in, send JWT
+    createSendToken(user, 200, res);
   },
 );
 

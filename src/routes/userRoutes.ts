@@ -8,9 +8,15 @@ router.route('/login').post(authController.login);
 router.route('/forgetPassword').post(authController.forgetPassword);
 router.route('/resetPassword/:token').patch(authController.resetPassword);
 router
-  .route('/updatePassword')
+  .route('/updateMyPassword')
   .patch(authController.protect, authController.updatePassword);
+router
+  .route('/updateMe')
+  .delete(authController.protect, userControllers.updateMe);
 
+router
+  .route('/deleteMe')
+  .patch(authController.protect, userControllers.deleteMe);
 router
   .route('/')
   .get(userControllers.getAllUsers)
