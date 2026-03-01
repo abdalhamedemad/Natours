@@ -233,8 +233,16 @@ router
 
 ## we will use nodemailer library to send email to reset the password
 
-## JWT with Cookies
+## Security
+
+### JWT with Cookies
 
 - send the jwt token with cookies so the browser will save it in secure way
 - instead of saving it to the localstorage which is less secure any one can use it (stole it)
 - a Cookie is a piece of text the server sends to the browser and the broswer sends it back with each request
+
+### will add a rate limiting pkg for security rate limiting to determine the number of the request that comes from the same ip to prevent DOS Attack and brute force attack
+
+### helmet : is a security okg that allows to add headers to make the app more secure, browser will understand this headers for security
+
+### No Sql injection make a Data sanitization use express-mongo-sanitize and XSS

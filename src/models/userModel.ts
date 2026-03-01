@@ -7,7 +7,7 @@ export interface IUser extends Document {
   name: string;
   email: string;
   photo?: string;
-  password: string;
+  password: string | undefined;
   passwordConfirm: string | undefined;
   passwordChangedAt: Date;
   role: string;
@@ -77,7 +77,7 @@ userSchema.pre('save', async function (this: IUser, next) {
   if (!this.isModified('password')) return next();
 
   // 12 is the salt the higher the more encryption but will be costly on the CPU
-  this.password = await bcrypt.hash(this.password, 12);
+  this.password = await bcrypt.hash(this.password as string, 12);
   // Delete the password confirm field
   this.passwordConfirm = undefined;
   next();

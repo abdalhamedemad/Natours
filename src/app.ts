@@ -5,6 +5,11 @@ import tourRouter from './routes/tourRoutes';
 import userRouter from './routes/userRoutes';
 import AppError from './utils/AppError';
 import globalErrorController from './controllers/errorControllers';
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
+import mongoSanitize from 'express-mongo-sanitize';
+// import XSS from 'xss-clean';
+import hpp from 'hpp';
 
 interface CustomRequest extends Request {
   requestTime?: string;
@@ -12,16 +17,56 @@ interface CustomRequest extends Request {
 
 const app = express();
 
-// 1) MIDDLEWARE
+// 1) Global MIDDLEWARE
+// Set security http headers
+app.use(helmet());
+
+// Development Logger
 if (process.env.NODE_ENV === 'development') {
   // logger middleware
   console.log('Logger');
   app.use(morgan('dev'));
 }
 
+// Limit requests from same API
+// for ratel limiting here we specify for the same ip 100 request max in one hours
+// for the sam ip prevent DOS and brute force attack
+const limiter = rateLimit({
+  max: 100,
+  windowMs: 60 * 60 * 1000,
+  message: 'To many requests from this Ip , Please try again in an hour',
+});
+
+app.use('/api', limiter);
+
+// Body parser
 // this a middleware for adding the body to the request (body parser)
 // without it when we try to use req.bod will give undefined
-app.use(express.json());
+// 10kb is the limit of the body for a security prevent DOS
+app.use(express.json({ limit: '10kb' }));
+
+// Data Sanitization against no sql injection
+app.use(mongoSanitize());
+
+// Data Sanitization against XSS for remove some malicious js inside html
+// app.use(XSS());
+
+// Prevent Parameter Pollution
+// example double use of sort in the query params will keep the last one
+// but in some situation we want that so if we want to keep them add in this array
+app.use(
+  hpp({
+    whitelist: [
+      'duration',
+      'ratingsQuantity',
+      'ratingsAverage',
+      'maxGroupSize',
+      'difficulty',
+      'price',
+    ],
+  }),
+);
+
 // this in order to make express parse advanced queries with gte ,lt ..
 app.set('query parser', 'extended');
 

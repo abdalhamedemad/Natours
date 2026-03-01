@@ -16,10 +16,23 @@ const signToken = (id: string) => {
 };
 const createSendToken = (user: IUser, statusCode: number, res: Response) => {
   const token = signToken(user._id.toString());
-  res.status(statusCode).json({
-    status: 'success',
-    token,
-  });
+  const cookieOptions = {
+    expires: new Date(
+      Date.now() +
+        Number(process.env.JWT_COOKIE_EXPIRES_IN) * 24 * 60 * 60 * 1000,
+    ),
+    // not able to modify cookies at the browser
+    httpOnly: true,
+    secure: false,
+  };
+
+  // to make cookies send only in https
+  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+
+  // when creating a new user will send back the password in the model we se select = false
+  // to make it not returning from quering but here for creating new one so that is different
+  user.password = undefined;
+  res.cookie('jwt', token, cookieOptions);
 };
 const signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
