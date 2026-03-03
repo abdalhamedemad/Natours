@@ -55,7 +55,7 @@ const tourSchema = new mongoose.Schema(
       required: [true, 'A tour must have a difficulty'],
       // values that are allowed , enum only for strings
       enum: {
-        values: ['easy', 'medium', 'difficulty'],
+        values: ['easy', 'medium', 'difficult'],
         message: 'Difficulty is either: easy,medium and difficult ',
       },
     },
@@ -111,6 +111,36 @@ const tourSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    // embeddings
+    startLocation: {
+      // GeoJSON for Geospatial data
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point'],
+      },
+      // array of number latitude and longitude
+      coordinates: [Number],
+      address: String,
+      description: String,
+    },
+    locations: [
+      {
+        type: {
+          type: String,
+          default: 'Point',
+          enum: ['Point'],
+        },
+        // array of number latitude and longitude
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number,
+      },
+    ],
+    // child to parent Referencing to User collection
+    // here like in SQL pointing to primary key id in user's table
+    guides: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   },
   {
     // here we specify to add the virtual fields when we need data as json or object
@@ -154,6 +184,17 @@ tourSchema.pre(/^find/, function (this: TourQuery<any>, next) {
 
   this.start = Date.now();
   next();
+});
+
+tourSchema.pre(/^find/, function (this: TourQuery<any>, next) {
+  // this populate will fill out the reference guides with the data of the users
+  // like make a join to get the data of the user to the document
+  // and in select - to remove __v and.. from the returning
+  // populate behind the scene create another query
+  this.populate({
+    path: 'guides',
+    select: '-__V -passwordChangedAt',
+  });
 });
 
 tourSchema.post(/^find/, function (this: TourQuery<any>, doc, next) {
