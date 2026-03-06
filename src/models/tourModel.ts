@@ -157,6 +157,21 @@ tourSchema.virtual('durationWeeks').get(function (this: ITour) {
   return this.duration / 7;
 });
 
+// here in the tour model we make a parent refrecncing tour-> review
+// if we want to gets all the review for a certain tour without storing
+// an array of ids in the parent routes (child refrencing) we can store
+// this virtual add a virtual field
+// Virtual populate
+// virtual field name : reviews will use this to make populate
+tourSchema.virtual('reviews', {
+  // table
+  ref: 'Review',
+  // like foreign key
+  foreignField: 'tour',
+  // primary field
+  localField: '_id',
+});
+
 // 1- Document Middleware  (hooks): runs before .save() and .create() and not works for insertMany or update or findby
 // we can add many pre and post middlewares
 // Called document because in this middle ware we have access to the current document by using this
@@ -174,7 +189,7 @@ tourSchema.pre('save', function (this: ITour, next) {
 // });
 
 // 2- Query Middleware for find methods like find  and not findByID method bec inside it use findOne
-tourSchema.pre('find', function () {});
+// tourSchema.pre('find', function () {});
 //  here will work for all find method because we use a regex to work for all methods that start with word find
 // like findOne , findAndDelete  findAndUpdate all ...
 tourSchema.pre(/^find/, function (this: TourQuery<any>, next) {
@@ -195,6 +210,7 @@ tourSchema.pre(/^find/, function (this: TourQuery<any>, next) {
     path: 'guides',
     select: '-__V -passwordChangedAt',
   });
+  next();
 });
 
 tourSchema.post(/^find/, function (this: TourQuery<any>, doc, next) {

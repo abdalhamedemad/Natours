@@ -3,6 +3,7 @@ import morgan from 'morgan';
 import path from 'path';
 import tourRouter from './routes/tourRoutes';
 import userRouter from './routes/userRoutes';
+import reviewRouter from './routes/reviewRoutes';
 import AppError from './utils/AppError';
 import globalErrorController from './controllers/errorControllers';
 import rateLimit from 'express-rate-limit';
@@ -46,7 +47,7 @@ app.use('/api', limiter);
 app.use(express.json({ limit: '10kb' }));
 
 // Data Sanitization against no sql injection
-app.use(mongoSanitize());
+// app.use(mongoSanitize());
 
 // Data Sanitization against XSS for remove some malicious js inside html
 // app.use(XSS());
@@ -93,6 +94,7 @@ app.use((req: CustomRequest, res: Response, next) => {
 // mounting the router to a specific url
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/reviews', reviewRouter);
 
 // here will be reached if the request did not handled by any of the above handlers
 // all means all the types of the request get,post,patch....

@@ -26,7 +26,7 @@ const getAllUsers = catchAsync(async (req: Request, res: Response, next) => {
       users,
     },
   });
-  next();
+  // next();
 });
 
 const createUser = (req: Request, res: Response) => {

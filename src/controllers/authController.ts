@@ -33,6 +33,13 @@ const createSendToken = (user: IUser, statusCode: number, res: Response) => {
   // to make it not returning from quering but here for creating new one so that is different
   user.password = undefined;
   res.cookie('jwt', token, cookieOptions);
+  res.status(statusCode).json({
+    status: 'success',
+    token,
+    data: {
+      user,
+    },
+  });
 };
 const signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({

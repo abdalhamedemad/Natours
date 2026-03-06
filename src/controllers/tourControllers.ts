@@ -58,7 +58,6 @@ const getAllTours = catchAsync(
 
     // 2) execute the Quey
     const tours = await features.query;
-
     // 3) Send the Response
     res.status(200).json({
       status: 'success',
