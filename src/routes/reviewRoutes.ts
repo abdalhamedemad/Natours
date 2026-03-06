@@ -2,7 +2,9 @@ import express from 'express';
 import reviewControllers from '../controllers/reviewControllers';
 import authController from '../controllers/authController';
 
-const router = express.Router();
+//  mergeParams: true  to make access for the params that comes from other
+// router like for /tours/:tourId/reviews
+const router = express.Router({ mergeParams: true });
 router
   .route('/')
   .get(authController.protect, reviewControllers.getAllReviews)

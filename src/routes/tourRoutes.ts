@@ -1,9 +1,19 @@
 import express from 'express';
 import tourController from '../controllers/tourControllers';
 import authController from '../controllers/authController';
+import reviewRouter from './reviewRoutes';
 
 // create a new Router (middle ware)
 const router = express.Router();
+
+// nested route for /tour/22156/reviews
+// reviews is child of tour here we want reviews of this tour
+// here we don't want to use reviewcontroller inside here additionally
+// duplicate code bec in reviewRoutes we use reviewControllers.createReview
+// sol make a redirection to review Router to make access to tourId inside reviewRouter use margeParams: true
+// because :tourId comes from here
+router.use('/:tourId/reviews', reviewRouter);
+
 // middleware params
 // router.param('id', tourController.checkID);
 router
