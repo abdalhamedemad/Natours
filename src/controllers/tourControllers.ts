@@ -3,7 +3,7 @@ import Tour, { ITour } from '../models/tourModel';
 import APIFeature from '../utils/APIFeatures';
 import catchAsync from '../utils/catchAsync';
 import AppError from '../utils/AppError';
-import factory from './handlerFactor';
+import factory from './handlerFactory';
 
 /*
 // this function for a params middleware so we have addition val
@@ -38,61 +38,12 @@ const aliasTopTours = (req: Request, res: Response, next: NextFunction) => {
 };
 
 //  get all tours
-const getAllTours = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    // get all
-    // const tours = await Tour.find();
-    // 1) Build Query
-    const features = new APIFeature<ITour>(
-      Tour.find(),
-      req.query as Record<string, string | undefined>,
-    )
-      .filter()
-      .sort()
-      .limit()
-      .pagination();
-    // const query = await Tour.find()
-    //   .where('duration')
-    //   .equals(5)
-    //   .where('difficulty')
-    //   .equals('easy');
-
-    // 2) execute the Quey
-    const tours = await features.query;
-    // 3) Send the Response
-    res.status(200).json({
-      status: 'success',
-      results: tours.length,
-      data: {
-        tours,
-      },
-    });
-  },
-);
+const getAllTours = factory.getAll(Tour);
 
 // get specific one
-const getTour = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    // Tour.findOne({_id:req.params.id})
-    const tour = await Tour.findById(req.params.id);
-    // here if the id is valid but not exist will return null so we want to handle it as 404
-    if (!tour) {
-      // return in order not to complete execute the func
-      return next(new AppError('No tour found with that ID', 404));
-    }
-    res.status(200).json({
-      status: 'success',
-      data: {
-        tour,
-      },
-    });
-  },
-);
-
+const getTour = factory.getOne(Tour, { path: 'reviews' });
 const createTour = factory.createOne(Tour);
-
 const updateTour = factory.updateOne(Tour);
-
 const deleteTour = factory.deleteOne(Tour);
 
 // const deleteTour = catchAsync(

@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import User, { IUser } from '../models/userModel';
 import catchAsync from '../utils/catchAsync';
 import AppError from '../utils/AppError';
-import factory from './handlerFactor';
+import factory from './handlerFactory';
 
 interface AuthRequest extends Request {
   user?: IUser;
@@ -18,22 +18,12 @@ const filterObj = (obj: Record<string, any>, ...allowedFields: string[]) => {
 
   return newObj;
 };
-const getAllUsers = catchAsync(async (req: Request, res: Response, next) => {
-  const users = await User.find();
-  res.status(200).json({
-    status: 'success',
-    results: users.length,
-    data: {
-      users,
-    },
-  });
-  // next();
-});
+const getAllUsers = factory.getAll(User);
 
 const createUser = (req: Request, res: Response) => {
   res.status(500).json({
     status: 'error',
-    message: 'This route is not implemented yet',
+    message: 'This route is not defined please use /signup',
   });
 };
 // Me because this for the logged in user
@@ -82,12 +72,7 @@ const deleteMe = catchAsync(
   },
 );
 
-const getUser = (req: Request, res: Response) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not implemented yet',
-  });
-};
+const getUser = factory.getOne(User);
 // this for administrator, do not update password with this
 const updateUser = factory.updateOne(User);
 const deleteUser = factory.deleteOne(User);
