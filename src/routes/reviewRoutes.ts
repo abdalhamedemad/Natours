@@ -11,8 +11,14 @@ router
   .post(
     authController.protect,
     authController.restrictTo('user'),
+    reviewControllers.setTourUserIds,
     reviewControllers.createReview,
   );
+
+router
+  .route('/:id')
+  .patch(reviewControllers.updateReview)
+  .delete(reviewControllers.deleteReview);
 // router
 // .route('/:id')
 // .get(tourController.getTour)

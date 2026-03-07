@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import Review from '../models/reviewModel';
 import catchAsync from '../utils/catchAsync';
 import { IUser } from '../models/userModel';
+import factory from './handlerFactor';
+
 // import AppError from '../utils/AppError';
 interface AuthRequest extends Request {
   user?: IUser;
@@ -21,18 +23,22 @@ const getAllReviews = catchAsync(
     });
   },
 );
-
-const createReview = catchAsync(
-  async (req: AuthRequest, res: Response, next: NextFunction) => {
-    req.body.tour ??= req.params.tourId;
-    req.body.user ??= req.user?.id;
-    const newReview = await Review.create(req.body);
-    res.status(201).json({
-      status: 'success',
-      data: {
-        review: newReview,
-      },
-    });
-  },
-);
-export default { getAllReviews, createReview };
+const setTourUserIds = (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction,
+) => {
+  req.body.tour ??= req.params.tourId;
+  req.body.user ??= req.user?.id;
+  next();
+};
+const createReview = factory.createOne(Review);
+const updateReview = factory.updateOne(Review);
+const deleteReview = factory.deleteOne(Review);
+export default {
+  getAllReviews,
+  createReview,
+  deleteReview,
+  updateReview,
+  setTourUserIds,
+};

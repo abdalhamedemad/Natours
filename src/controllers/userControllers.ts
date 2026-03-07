@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import User, { IUser } from '../models/userModel';
 import catchAsync from '../utils/catchAsync';
 import AppError from '../utils/AppError';
+import factory from './handlerFactor';
 
 interface AuthRequest extends Request {
   user?: IUser;
@@ -87,19 +88,9 @@ const getUser = (req: Request, res: Response) => {
     message: 'This route is not implemented yet',
   });
 };
-const updateUser = (req: Request, res: Response) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not implemented yet',
-  });
-};
-const deleteUser = (req: Request, res: Response) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not implemented yet',
-  });
-};
-
+// this for administrator, do not update password with this
+const updateUser = factory.updateOne(User);
+const deleteUser = factory.deleteOne(User);
 export default {
   getAllUsers,
   getUser,

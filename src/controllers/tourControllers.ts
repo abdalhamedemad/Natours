@@ -3,6 +3,7 @@ import Tour, { ITour } from '../models/tourModel';
 import APIFeature from '../utils/APIFeatures';
 import catchAsync from '../utils/catchAsync';
 import AppError from '../utils/AppError';
+import factory from './handlerFactor';
 
 /*
 // this function for a params middleware so we have addition val
@@ -88,59 +89,25 @@ const getTour = catchAsync(
   },
 );
 
-const createTour = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    // creating new tour using model Tour
-    // const newTour = new Tour({})
-    // newTour.save().then........
-    // using better way
-    // will return newly created document
-    // if the body contains other fields that not in the schema will be ignored this field
-    const newTour = await Tour.create(req.body);
-    res.status(201).json({
-      status: 'success',
-      data: {
-        tour: newTour,
-      },
-    });
-  },
-);
+const createTour = factory.createOne(Tour);
 
-const updateTour = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    //  here we add the option new : true in order to return the updated
-    // version of the tour
-    // run validator is true in order to  run the validator against the schema
-    const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-    if (!tour) {
-      // return in order not to complete execute the func
-      return next(new AppError('No tour found with that ID', 404));
-    }
-    res.status(200).json({
-      status: 'success',
-      data: {
-        tour,
-      },
-    });
-  },
-);
+const updateTour = factory.updateOne(Tour);
 
-const deleteTour = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const tour = await Tour.findByIdAndDelete(req.params.id);
-    if (!tour) {
-      // return in order not to complete execute the func
-      return next(new AppError('No tour found with that ID', 404));
-    }
-    res.status(204).json({
-      status: 'success',
-      data: null,
-    });
-  },
-);
+const deleteTour = factory.deleteOne(Tour);
+
+// const deleteTour = catchAsync(
+//   async (req: Request, res: Response, next: NextFunction) => {
+//     const tour = await Tour.findByIdAndDelete(req.params.id);
+//     if (!tour) {
+//       // return in order not to complete execute the func
+//       return next(new AppError('No tour found with that ID', 404));
+//     }
+//     res.status(204).json({
+//       status: 'success',
+//       data: null,
+//     });
+//   },
+// );
 
 const getTourStats = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
