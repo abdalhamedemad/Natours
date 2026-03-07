@@ -18,7 +18,6 @@ const filterObj = (obj: Record<string, any>, ...allowedFields: string[]) => {
 
   return newObj;
 };
-const getAllUsers = factory.getAll(User);
 
 const createUser = (req: Request, res: Response) => {
   res.status(500).json({
@@ -27,6 +26,10 @@ const createUser = (req: Request, res: Response) => {
   });
 };
 // Me because this for the logged in user
+const getMe = (req: AuthRequest, res: Response, next: NextFunction) => {
+  req.params.id = req.user?.id;
+  next();
+};
 const updateMe = catchAsync(
   async (req: AuthRequest, res: Response, next: NextFunction) => {
     // 1) Create error if user post
@@ -71,7 +74,7 @@ const deleteMe = catchAsync(
     });
   },
 );
-
+const getAllUsers = factory.getAll(User);
 const getUser = factory.getOne(User);
 // this for administrator, do not update password with this
 const updateUser = factory.updateOne(User);
@@ -84,4 +87,5 @@ export default {
   deleteUser,
   updateMe,
   deleteMe,
+  getMe,
 };

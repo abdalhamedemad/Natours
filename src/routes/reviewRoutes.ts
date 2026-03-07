@@ -5,11 +5,12 @@ import authController from '../controllers/authController';
 //  mergeParams: true  to make access for the params that comes from other
 // router like for /tours/:tourId/reviews
 const router = express.Router({ mergeParams: true });
+
+router.use(authController.protect);
 router
   .route('/')
-  .get(authController.protect, reviewControllers.getAllReviews)
+  .get(reviewControllers.getAllReviews)
   .post(
-    authController.protect,
     authController.restrictTo('user'),
     reviewControllers.setTourUserIds,
     reviewControllers.createReview,
@@ -18,8 +19,14 @@ router
 router
   .route('/:id')
   .get(reviewControllers.getReview)
-  .patch(reviewControllers.updateReview)
-  .delete(reviewControllers.deleteReview);
+  .patch(
+    authController.restrictTo('user', 'admin'),
+    reviewControllers.updateReview,
+  )
+  .delete(
+    authController.restrictTo('user', 'admin'),
+    reviewControllers.deleteReview,
+  );
 // router
 // .route('/:id')
 // .get(tourController.getTour)
