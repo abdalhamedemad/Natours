@@ -64,6 +64,7 @@ const tourSchema = new mongoose.Schema(
       default: 4.5,
       min: [1, 'Ratings must be above 1.0'],
       max: [5, 'Ratings must be below  5.0'],
+      set: (val: number) => Math.round(val * 10) / 10,
     },
     ratingsQuantity: {
       type: Number,
@@ -148,6 +149,16 @@ const tourSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   },
 );
+
+// Indexing doctor micheale
+// indexing decrease the number of reading the document to reach the required filter
+// but add extra space that store the meta data for the index
+// use the index for the fields that used frequently also not update frequantly because
+// for each update it will update the index
+// compound index 1  for asc and -1 for desc
+tourSchema.index({ price: 1, ratingsAverage: -1 });
+// indexing on slug
+tourSchema.index({ slug: 1 });
 
 // Virtual Properties (derived Fields)
 // .get() because we want to calculate only when a request occurs

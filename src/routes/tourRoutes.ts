@@ -27,6 +27,13 @@ router
     authController.restrictTo('admin', 'lead-guide', 'guide'),
     tourController.getMonthlyPlan,
   );
+// this router for getting all the tours at specified distance , center & latlang is the home or from which start
+// to calc the distance
+
+// router.route(
+//   '/tours-within/:distance/center/:latlng/unit/:unit',
+//   tourController.getToursWithin,
+// );
 router
   .route('/')
   .get(tourController.getAllTours)
