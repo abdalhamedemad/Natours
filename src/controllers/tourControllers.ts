@@ -163,6 +163,82 @@ const getMonthlyPlan = catchAsync(
   },
 );
 
+// '/tours-within/:distance/center/:latlng/unit/:unit',
+// /tours-within/233/center/34.111,-118.113491/unit/mi
+const getToursWithin = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { distance, latlng, unit } = req.params;
+    const [lat, lng] = (latlng as string).split(',');
+    // radius here is the distance divided by the radius of the sphere
+    const radius =
+      unit === 'mi' ? Number(distance) / 3963.2 : Number(distance) / 6378.1;
+    if (!lat || !lng) {
+      next(
+        new AppError(
+          'Please provide latitutr and longitude in the format lat,lng',
+          400,
+        ),
+      );
+    }
+    // in order to use geospatial operation we have to index the gespatial field the we use
+    const tours = await Tour.find({
+      startLocation: { $geoWithin: { $centerSphere: [[lng, lat], radius] } },
+    });
+    res.status(200).json({
+      status: 'success',
+      results: tours.length,
+      data: {
+        data: tours,
+      },
+    });
+  },
+);
+
+const getDistances = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { latlng, unit } = req.params;
+    const [lat, lng] = (latlng as string).split(',');
+
+    const multiplier = unit === 'mi' ? 0.000621371 : 0.001;
+    if (!lat || !lng) {
+      next(
+        new AppError(
+          'Please provide latitutr and longitude in the format lat,lng',
+          400,
+        ),
+      );
+    }
+    const distances = await Tour.aggregate([
+      {
+        // always needs to be the first stage in the geo aggregation pipeline
+        // because there only one geo index startLocation $geoNear will automatically use it
+        $ageoNear: {
+          near: {
+            type: 'Point',
+            coordinates: [Number(lng), Number(lat)],
+          },
+          distanceField: 'distance',
+          // to convert from meter to km
+          distanceMultiplier: multiplier,
+        },
+      },
+      {
+        $project: {
+          distance: 1,
+          name: 1,
+        },
+      },
+    ]);
+    res.status(200).json({
+      status: 'success',
+      results: distances.length,
+      data: {
+        data: distances,
+      },
+    });
+  },
+);
+
 export default {
   getAllTours,
   getTour,
@@ -172,6 +248,8 @@ export default {
   aliasTopTours,
   getTourStats,
   getMonthlyPlan,
+  getToursWithin,
+  getDistances,
   // checkID,
   // checkBody,
 };

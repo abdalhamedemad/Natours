@@ -160,6 +160,11 @@ tourSchema.index({ price: 1, ratingsAverage: -1 });
 // indexing on slug
 tourSchema.index({ slug: 1 });
 
+// geospatial indexing in order to use it's operations
+// 2dspere : for distance on the earth
+// 2d : for 2d distance on 2d plane
+tourSchema.index({ startLocation: '2dsphere' });
+
 // Virtual Properties (derived Fields)
 // .get() because we want to calculate only when a request occurs
 // we use a normal function here not an arrow function because we want this
@@ -233,12 +238,12 @@ tourSchema.post(/^find/, function (this: TourQuery<any>, doc, next) {
 // 3- Aggregation tour this runs before and after the aggregations
 // here this will point into the aggregation object
 // here we will hide the secret tours from the aggregation
-tourSchema.pre('aggregate', function (this: Aggregate<ITour[]>, next) {
-  // here the pipeline will contains all the stages of the current aggregation
-  // so simply will add at the first match that exclude sectet tours
-  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
-  next();
-});
+// tourSchema.pre('aggregate', function (this: Aggregate<ITour[]>, next) {
+//   // here the pipeline will contains all the stages of the current aggregation
+//   // so simply will add at the first match that exclude sectet tours
+//   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+//   next();
+// });
 
 // here we use the schema to build a model Tour so we can now use Tour to make a crud operation very easy
 // here the convention that model name must start with a Capital letter
