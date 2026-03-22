@@ -11,13 +11,20 @@ import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 // import XSS from 'xss-clean';
 import hpp from 'hpp';
+import cors from 'cors';
 
 interface CustomRequest extends Request {
   requestTime?: string;
 }
 
 const app = express();
-
+app.use(
+  cors({
+    origin: 'http://localhost:3000', 
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true,
+  }),
+);
 // 1) Global MIDDLEWARE
 // Set security http headers
 app.use(helmet());

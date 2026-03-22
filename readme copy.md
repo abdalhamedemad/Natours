@@ -246,3 +246,7 @@ router
 ### helmet : is a security okg that allows to add headers to make the app more secure, browser will understand this headers for security
 
 ### No Sql injection make a Data sanitization use express-mongo-sanitize and XSS
+
+## will use multer for image uploading
+
+## For image resizing will use sharp library

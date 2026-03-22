@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema<IUser>({
   photo: {
     type: String,
     // required: [true, 'A user must have a photo'],
-    validate: [validator.isURL, 'Enter a valid url'],
+    default: 'default.jpg',
   },
   role: {
     type: String,

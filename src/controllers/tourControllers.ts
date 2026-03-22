@@ -42,6 +42,27 @@ const getAllTours = factory.getAll(Tour);
 
 // get specific one
 const getTour = factory.getOne(Tour, { path: 'reviews' });
+
+const getTourBySlug = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const query = Tour.findOne({ slug: req.params.slug }).populate({
+      path: 'reviews',
+      fields: 'review rating user',
+    });
+    const doc = await query;
+    // here if the id is valid but not exist will return null so we want to handle it as 404
+    if (!doc) {
+      // return in order not to complete execute the func
+      return next(new AppError('No document found with that Slug', 404));
+    }
+    res.status(200).json({
+      status: 'success',
+      data: {
+        data: doc,
+      },
+    });
+  },
+);
 const createTour = factory.createOne(Tour);
 const updateTour = factory.updateOne(Tour);
 const deleteTour = factory.deleteOne(Tour);
@@ -250,6 +271,7 @@ export default {
   getMonthlyPlan,
   getToursWithin,
   getDistances,
+  getTourBySlug,
   // checkID,
   // checkBody,
 };
