@@ -22,6 +22,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "@types/stripe": "^8.0.416",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
@@ -38,6 +39,7 @@
     "nodemailer": "^7.0.13",
     "sharp": "^0.34.5",
     "slugify": "^1.6.6",
+    "stripe": "^20.4.1",
     "validator": "^13.15.26",
     "xss-clean": "^0.1.4"
   },

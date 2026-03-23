@@ -4,6 +4,7 @@ import path from 'path';
 import tourRouter from './routes/tourRoutes';
 import userRouter from './routes/userRoutes';
 import reviewRouter from './routes/reviewRoutes';
+import bookingRouter from './routes/bookingRoutes';
 import AppError from './utils/AppError';
 import globalErrorController from './controllers/errorControllers';
 import rateLimit from 'express-rate-limit';
@@ -20,7 +21,7 @@ interface CustomRequest extends Request {
 const app = express();
 app.use(
   cors({
-    origin: 'http://localhost:3000', 
+    origin: 'http://localhost:3000',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
   }),
@@ -102,6 +103,7 @@ app.use((req: CustomRequest, res: Response, next) => {
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
+app.use('/api/v1/bookings', bookingRouter);
 
 // here will be reached if the request did not handled by any of the above handlers
 // all means all the types of the request get,post,patch....
